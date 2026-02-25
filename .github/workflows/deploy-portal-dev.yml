@@ -14,15 +14,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2️⃣ Login to GHCR
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      # 3️⃣ Build Docker Image
       - name: Build Docker Image
         run: |
           docker build \
@@ -37,14 +34,11 @@ jobs:
             --build-arg VITE_PUBLIC_FIREBASE_APP_ID=${{ secrets.VITE_PUBLIC_FIREBASE_APP_ID }} \
             --build-arg VITE_PUBLIC_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_PUBLIC_FIREBASE_MEASUREMENT_ID }} \
             --build-arg VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }} \
-            -t ghcr.io/loyaltty-repos/openadmit-portal:dev \
-            .
+            -t ghcr.io/loyaltty-repos/openadmit-portal:dev .
 
-      # 4️⃣ Push Image
       - name: Push Docker Image
         run: docker push ghcr.io/loyaltty-repos/openadmit-portal:dev
 
-      # 5️⃣ Deploy to Dev Server
       - name: Deploy to Dev Server
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -53,10 +47,8 @@ jobs:
           key: ${{ secrets.DEV_SERVER_SSH_KEY }}
           script: |
             docker pull ghcr.io/loyaltty-repos/openadmit-portal:dev
-
             docker stop openadmit-portal-dev || true
             docker rm openadmit-portal-dev || true
-
             docker run -d \
               --name openadmit-portal-dev \
               --restart always \
