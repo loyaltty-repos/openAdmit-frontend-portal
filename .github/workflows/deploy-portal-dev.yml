@@ -22,28 +22,15 @@ jobs:
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      # 3️⃣ Build Docker Image with Build Args
+      # 3️⃣ Build Docker Image (Safe Single-Line Version)
       - name: Build Docker Image
-        run: |
-          docker build \
-            --build-arg VITE_SERVER_URL=${{ secrets.VITE_SERVER_URL }} \
-            --build-arg VITE_HOME_PATH=${{ secrets.VITE_HOME_PATH }} \
-            --build-arg VITE_CASHFREE_MODE=${{ secrets.VITE_CASHFREE_MODE }} \
-            --build-arg VITE_PUBLIC_FIREBASE_API_KEY=${{ secrets.VITE_PUBLIC_FIREBASE_API_KEY }} \
-            --build-arg VITE_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_PUBLIC_FIREBASE_AUTH_DOMAIN }} \
-            --build-arg VITE_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.VITE_PUBLIC_FIREBASE_PROJECT_ID }} \
-            --build-arg VITE_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_PUBLIC_FIREBASE_STORAGE_BUCKET }} \
-            --build-arg VITE_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }} \
-            --build-arg VITE_PUBLIC_FIREBASE_APP_ID=${{ secrets.VITE_PUBLIC_FIREBASE_APP_ID }} \
-            --build-arg VITE_PUBLIC_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_PUBLIC_FIREBASE_MEASUREMENT_ID }} \
-            --build-arg VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }} \
-            -t ghcr.io/loyaltty-repos/openadmit-portal:dev .
+        run: docker build --build-arg VITE_SERVER_URL=${{ secrets.VITE_SERVER_URL }} --build-arg VITE_HOME_PATH=${{ secrets.VITE_HOME_PATH }} --build-arg VITE_CASHFREE_MODE=${{ secrets.VITE_CASHFREE_MODE }} --build-arg VITE_PUBLIC_FIREBASE_API_KEY=${{ secrets.VITE_PUBLIC_FIREBASE_API_KEY }} --build-arg VITE_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_PUBLIC_FIREBASE_AUTH_DOMAIN }} --build-arg VITE_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.VITE_PUBLIC_FIREBASE_PROJECT_ID }} --build-arg VITE_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_PUBLIC_FIREBASE_STORAGE_BUCKET }} --build-arg VITE_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }} --build-arg VITE_PUBLIC_FIREBASE_APP_ID=${{ secrets.VITE_PUBLIC_FIREBASE_APP_ID }} --build-arg VITE_PUBLIC_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_PUBLIC_FIREBASE_MEASUREMENT_ID }} --build-arg VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }} -t ghcr.io/loyaltty-repos/openadmit-portal:dev .
 
       # 4️⃣ Push Image
       - name: Push Docker Image
         run: docker push ghcr.io/loyaltty-repos/openadmit-portal:dev
 
-      # 5️⃣ Deploy to Server
+      # 5️⃣ Deploy to Dev Server
       - name: Deploy to Dev Server
         uses: appleboy/ssh-action@v1.0.3
         with:
