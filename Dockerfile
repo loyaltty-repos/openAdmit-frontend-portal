@@ -3,7 +3,6 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Declare build-time arguments (passed via --build-arg)
 ARG VITE_SERVER_URL
 ARG VITE_HOME_PATH
 ARG VITE_CASHFREE_MODE
@@ -16,7 +15,6 @@ ARG VITE_PUBLIC_FIREBASE_APP_ID
 ARG VITE_PUBLIC_FIREBASE_MEASUREMENT_ID
 ARG VITE_GOOGLE_CLIENT_ID
 
-# Make them available as ENV during build (Vite reads ENV vars prefixed with VITE_)
 ENV VITE_SERVER_URL=$VITE_SERVER_URL \
     VITE_HOME_PATH=$VITE_HOME_PATH \
     VITE_CASHFREE_MODE=$VITE_CASHFREE_MODE \
@@ -29,25 +27,21 @@ ENV VITE_SERVER_URL=$VITE_SERVER_URL \
     VITE_PUBLIC_FIREBASE_MEASUREMENT_ID=$VITE_PUBLIC_FIREBASE_MEASUREMENT_ID \
     VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
 
-# Install dependencies first (better caching)
 COPY package*.json ./
-RUN npm ci --legacy-peer-deps  # or npm install; use ci for exact lockfile reproducibility in CI
+RUN npm ci --legacy-peer-deps
 
-# Copy source and build
 COPY . .
 RUN npm run build
 
-# Stage 2: Production image - lightweight Nginx
-FROM nginx:alpine
+# Stage 2: Lightweight static server
+FROM node:20-alpine
 
-# Copy built static files
-COPY --from=builder /app/dist /usr/share/nginx/html
+WORKDIR /app
 
-# Optional: Custom nginx.conf if needed (e.g. for SPA routing)
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
+RUN npm install -g serve
 
-# Expose port (informational; -p still required at runtime)
-EXPOSE 80
+COPY --from=builder /app/dist ./dist
 
-# Run Nginx in foreground
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 3001
+
+CMD ["serve", "-s", "dist", "-l", "3001"]
