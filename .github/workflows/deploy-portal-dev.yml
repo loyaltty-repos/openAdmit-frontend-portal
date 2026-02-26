@@ -62,5 +62,5 @@ jobs:
             docker run -d \
               --name openadmit-portal-dev \
               --restart always \
-              -p 3001:3001 \
+              -p 127.0.0.1:3001:3001 \
               ghcr.io/loyaltty-repos/openadmit-portal:dev
